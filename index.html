@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no,
+  initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>Comments App</title>
+</head>
+<body>
+  <h1>Comments App</h1>
+  <form id="commentForm">
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author" required>
+
+    <label for="body">Comment:</label>
+    <textarea id="body" name="body" required></textarea>
+
+    <button type="submit">Add Comment</button>
+  </form>
+
+  <div id="commentsList">
+    <!-- Comments will be displayed here -->
+  </div>
+
+  <script>
+    const apiUrl = 'https://d1-example.isaiahgem.workers.dev';
+
+    // Function to fetch and display comments
+    async function fetchComments() {
+      const response = await fetch(`${apiUrl}/api/posts/some-slug/comments`);
+      const comments = await response.json();
+
+      const commentsList = document.getElementById('commentsList');
+      commentsList.innerHTML = '';
+
+      comments.forEach(comment => {
+	const commentElement = document.createElement('div');
+	commentElement.innerHTML = `<strong>${comment.author}</strong>: ${comment.body}`;
+	commentsList.appendChild(commentElement);
+      });
+    }
+
+    // Event listener for form submission
+    document.getElementById('commentForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const author = document.getElementById('author').value;
+      const body = document.getElementById('body').value;
+
+      const response = await fetch(`${apiUrl}/api/posts/some-slug/comments`, {
+	method: 'POST',
+	headers: {
+	  'Content-Type': 'application/json'
+	},
+	body: JSON.stringify({ author, body })
+      });
+
+      if (response.status === 201) {
+	// Comment created successfully, fetch and display updated comments
+	fetchComments();
+      } else {
+	// Handle error
+	console.error('Error creating comment');
+      }
+    });
+
+    // Initial fetch and display of comments
+    fetchComments();
+  </script>
+</body>
+</html>
