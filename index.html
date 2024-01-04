@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no,
-  initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comments App</title>
 </head>
 <body>
   <h1>Comments App</h1>
+
   <form id="commentForm">
     <label for="author">Author:</label>
     <input type="text" id="author" name="author" required>
@@ -27,17 +27,14 @@
 
     // Function to fetch and display comments
     async function fetchComments() {
-      const response = await fetch(`${apiUrl}/api/posts/some-slug/comments`);
-      const comments = await response.json();
-
-      const commentsList = document.getElementById('commentsList');
-      commentsList.innerHTML = '';
-
-      comments.forEach(comment => {
-	const commentElement = document.createElement('div');
-	commentElement.innerHTML = `<strong>${comment.author}</strong>: ${comment.body}`;
-	commentsList.appendChild(commentElement);
-      });
+      const response = await fetch(`${apiUrl}/api/posts/some-slug/comments`, { mode: 'no-cors' });
+      // Since we're using 'no-cors', response.json() won't work directly.
+      // You can still check if the response status is OK.
+      if (response.ok) {
+        console.log('Request successful');
+      } else {
+        console.error('Request failed');
+      }
     }
 
     // Event listener for form submission
@@ -48,19 +45,20 @@
       const body = document.getElementById('body').value;
 
       const response = await fetch(`${apiUrl}/api/posts/some-slug/comments`, {
-	method: 'POST',
-	headers: {
-	  'Content-Type': 'application/json'
-	},
-	body: JSON.stringify({ author, body })
+        method: 'POST',
+        mode: 'no-cors', // Set mode to 'no-cors' for POST requests as well
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ author, body })
       });
 
-      if (response.status === 201) {
-	// Comment created successfully, fetch and display updated comments
-	fetchComments();
+      if (response.ok) {
+        // Comment created successfully, fetch and display updated comments
+        fetchComments();
       } else {
-	// Handle error
-	console.error('Error creating comment');
+        // Handle error
+        console.error('Error creating comment');
       }
     });
 
@@ -69,3 +67,4 @@
   </script>
 </body>
 </html>
+
