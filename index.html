@@ -3,69 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comments App</title>
+  <title>Comments Page</title>
 </head>
 <body>
-  <h1>Comments App</h1>
-  <p>Testing something3</p>
-
-  <form id="commentForm">
-    <label for="author">Author:</label>
-    <input type="text" id="author" name="author" required>
-
-    <label for="body">Comment:</label>
-    <textarea id="body" name="body" required></textarea>
-
-    <button type="submit">Add Comment</button>
-  </form>
-
-  <div id="commentsList">
-    <!-- Comments will be displayed here -->
-  </div>
+  <h1>Comments</h1>
+  <ul id="comments-list"></ul>
 
   <script>
-    const apiUrl = 'https://d1-example.isaiahgem.workers.dev';
-
-    // Function to fetch and display comments
     async function fetchComments() {
-      const response = await fetch(`${apiUrl}/api/posts/some-slug/comments`, { mode: 'no-cors' });
-      // Since we're using 'no-cors', response.json() won't work directly.
-      // You can still check if the response status is OK.
-      if (response.ok) {
-        console.log('Request successful');
-      } else {
-        console.error('Request failed');
+      try {
+        const response = await fetch('https://d1-example.isaiahgem.workers.dev/api/posts/hello-world/comments');
+        const comments = await response.json();
+
+        const commentsList = document.getElementById('comments-list');
+
+        comments.forEach(comment => {
+          const li = document.createElement('li');
+          li.textContent = `${comment.author}: ${comment.body}`;
+          commentsList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error fetching comments:', error);
       }
     }
 
-    // Event listener for form submission
-    document.getElementById('commentForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
-
-      const author = document.getElementById('author').value;
-      const body = document.getElementById('body').value;
-
-      const response = await fetch(`${apiUrl}/api/posts/some-slug/comments`, {
-        method: 'POST',
-        mode: 'no-cors', // Set mode to 'no-cors' for POST requests as well
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ author, body })
-      });
-
-      if (response.ok) {
-        // Comment created successfully, fetch and display updated comments
-        fetchComments();
-      } else {
-        // Handle error
-        console.error('Error creating comment');
-      }
-    });
-
-    // Initial fetch and display of comments
-    fetchComments();
+    // Fetch comments when the page loads
+    window.onload = fetchComments;
   </script>
 </body>
 </html>
-
