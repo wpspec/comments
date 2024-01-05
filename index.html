@@ -9,6 +9,17 @@
   <h1>Comments</h1>
   <ul id="comments-list"></ul>
 
+  <h2>Add a Comment</h2>
+  <form id="comment-form">
+    <label for="author">Author:</label>
+    <input type="text" id="author" required>
+
+    <label for="body">Comment:</label>
+    <textarea id="body" required></textarea>
+
+    <button type="submit">Submit Comment</button>
+  </form>
+
   <script>
     async function fetchComments() {
       try {
@@ -27,8 +38,43 @@
       }
     }
 
+    async function submitComment(event) {
+      event.preventDefault();
+
+      const authorInput = document.getElementById('author');
+      const bodyInput = document.getElementById('body');
+
+      const author = authorInput.value;
+      const body = bodyInput.value;
+
+      try {
+        const response = await fetch('https://d1-example.isaiahgem.workers.dev/api/posts/hello-world/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ author, body }),
+        });
+
+        if (response.status === 201) {
+          // Comment successfully added, refresh comments
+          fetchComments();
+          // Clear the form inputs
+          authorInput.value = '';
+          bodyInput.value = '';
+        } else {
+          console.error('Error submitting comment:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error submitting comment:', error);
+      }
+    }
+
     // Fetch comments when the page loads
     window.onload = fetchComments;
+
+    // Attach the submitComment function to the form's submit event
+    document.getElementById('comment-form').addEventListener('submit', submitComment);
   </script>
 </body>
 </html>
